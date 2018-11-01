@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate structopt;
 extern crate termion;
 extern crate ransid;
@@ -176,9 +175,9 @@ fn run(
                 }
             };
 
-            let update = |screen: &mut MyTerminal, matrix: &mut Buffer, c, x, y, bold, underlined, italic, color| {
+            let update = |screen: &mut MyTerminal, matrix: &mut Buffer, c, x, y, bold, italic, underlined, color| {
                 
-                let c = RagerChar(c, bold, underlined, italic, color);
+                let c = RagerChar(c, bold, italic, underlined, color);
                 matrix.set(x, y, c);
                 
                 if y < (screen_height as usize) {
@@ -220,11 +219,11 @@ fn run(
                                         y,
                                         c,
                                         bold,
-                                        underlined,
                                         italic,
+                                        underlined,
                                         color,
                                     } => {
-                                        update(screen, matrix, c, x, y, bold, underlined, italic, color);
+                                        update(screen, matrix, c, x, y, bold, italic, underlined, color);
                                     },
 
                                     // Ignore all other event types.
@@ -300,6 +299,9 @@ fn run(
         });
     }
 
+
+    let mut pressed_g = 'n';
+
     for c in stdin.events() {
         match c.unwrap() {
             Event::Key(Key::Char('q')) |
@@ -307,23 +309,56 @@ fn run(
             Event::Mouse(MouseEvent::Press(MouseButton::WheelDown, _, _)) | 
             Event::Key(Key::Down) => {
                 let _ = tx.send(RagerEvent::ScrollUp);
+                pressed_g = 'n';
                 // write!(screen.borrow_mut(), "{}", scroll::Up(1)).unwrap();
+            }
+            Event::Key(Key::Char('j')) => {
+                let _ = tx.send(RagerEvent::ScrollUp);
+                pressed_g = 'n';
             }
             Event::Mouse(MouseEvent::Press(MouseButton::WheelUp, _, _)) |
             Event::Key(Key::Up) => {
                 let _ = tx.send(RagerEvent::ScrollDown);
             }
+            Event::Key(Key::Char('k')) => {
+                let _ = tx.send(RagerEvent::ScrollDown);
+                pressed_g = 'n';
+            }
             Event::Key(Key::Home) => {
                 let _ = tx.send(RagerEvent::Home);
+                pressed_g = 'n';
+            }
+            Event::Key(Key::Char('g')) => {
+                if pressed_g == 'y' {
+                    pressed_g = 'n';
+                    let _ = tx.send(RagerEvent::Home);
+                } else {
+                    pressed_g = 'y';
+                }
             }
             Event::Key(Key::End) => {
                 let _ = tx.send(RagerEvent::End);
+                pressed_g = 'n';
+            }
+            Event::Key(Key::Char('G')) => {
+                let _ = tx.send(RagerEvent::End);
+                pressed_g = 'n';
             }
             Event::Key(Key::PageUp) => {
                 let _ = tx.send(RagerEvent::PageUp);
+                pressed_g = 'n';
+            }
+            Event::Key(Key::Ctrl('B')) => {
+                let _ = tx.send(RagerEvent::PageUp);
+                pressed_g = 'n';
             }
             Event::Key(Key::PageDown) => {
                 let _ = tx.send(RagerEvent::PageDown);
+                pressed_g = 'n';
+            }
+            Event::Key(Key::Ctrl('F')) => {
+                let _ = tx.send(RagerEvent::PageDown);
+                pressed_g = 'n';
             }
             _ => {},
             // c => {
