@@ -1,13 +1,12 @@
 extern crate structopt;
 extern crate termion;
 extern crate ransid;
-extern crate failure;
 extern crate libc;
 extern crate crossbeam_channel;
 
 use std::path::PathBuf;
 use structopt::StructOpt;
-use failure::Error;
+use std::io::Error;
 use termion::event::*;
 use termion::scroll;
 use termion::input::{TermRead, MouseTerminal};

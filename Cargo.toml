@@ -10,7 +10,6 @@ readme = "README.md"
 
 [dependencies]
 crossbeam-channel = "0.1.2"
-failure = "0.1.1"
 libc = "0.2.40"
 ransid = "0.4.7"
 termion = "1.5.1"
